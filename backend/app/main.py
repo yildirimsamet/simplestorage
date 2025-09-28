@@ -1,0 +1,38 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.database.postgresql import create_tables
+from app.core.security.create_admin_user import create_admin_user
+from contextlib import asynccontextmanager
+from app.controllers import auth_controller, user_controller, category_controller, product_controller
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_tables()
+    await create_admin_user()
+    yield
+
+
+app = FastAPI(
+    title="Simple Storage Api",
+    description="Simple Storage Api",
+    version="0.1.0",
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_controller.router, prefix="/api/v1")
+app.include_router(user_controller.router, prefix="/api/v1")
+app.include_router(category_controller.router, prefix="/api/v1")
+app.include_router(product_controller.router, prefix="/api/v1")
+
+@app.get("/")
+async def root():
+    return {"Hello": "World"}

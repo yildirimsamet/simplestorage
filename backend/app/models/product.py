@@ -9,6 +9,4 @@ class Product(Base):
     name = Column(String, unique=True, nullable=False)
     image = Column(String)
     description = Column(String)
-    price = Column(Float, nullable=False)
-    stock = Column(Integer, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)

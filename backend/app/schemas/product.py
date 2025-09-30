@@ -1,13 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class ProductBase(BaseModel):
     name: str
     image: Optional[str] = None
     description: Optional[str] = None
-    price: float
-    stock: int
     category_id: int
 
 
@@ -19,8 +17,19 @@ class ProductUpdate(ProductBase):
     pass
 
 
+class ProductSizeDetail(BaseModel):
+    size_id: int
+    size_name: str
+    price: float
+    stock: int
+
+    class Config:
+        from_attributes = True
+
+
 class ProductResponse(ProductBase):
     id: int
+    sizes: List[ProductSizeDetail]
 
     class Config:
         from_attributes = True

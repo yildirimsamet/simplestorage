@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database.postgresql import create_tables
 from app.core.security.create_admin_user import create_admin_user
 from contextlib import asynccontextmanager
-from app.controllers import auth_controller, user_controller, category_controller, product_controller
+from app.controllers import auth_controller,user_controller,category_controller,product_controller,size_controller
 
 
 @asynccontextmanager
@@ -32,6 +32,7 @@ app.include_router(auth_controller.router, prefix="/api/v1")
 app.include_router(user_controller.router, prefix="/api/v1")
 app.include_router(category_controller.router, prefix="/api/v1")
 app.include_router(product_controller.router, prefix="/api/v1")
+app.include_router(size_controller.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

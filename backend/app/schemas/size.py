@@ -7,12 +7,14 @@ class SizeBase(BaseModel):
 class SizeCreate(SizeBase):
     pass
 
-class SizeUpdate(SizeBase):
-    pass
+class SizeUpdate(BaseModel):
+    name: Optional[str]
+    display_order: Optional[int]
 
 
 class SizeResponse(SizeBase):
     id: int
+    display_order: int
 
     class Config:
         from_attributes = True

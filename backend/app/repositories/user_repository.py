@@ -13,7 +13,6 @@ class UserRepository:
     async def create_user(self, user_data: UserCreate) -> User:
         hashed_password = get_password_hash(user_data.password)
 
-        print(f"hash pass: {hashed_password}")
         db_user = User(
             email=user_data.email,
             username=user_data.username,
@@ -21,7 +20,6 @@ class UserRepository:
             is_admin=user_data.is_admin or False,
         )
 
-        print(f"db user: {db_user}")
         self.db.add(db_user)
 
         await self.db.commit()

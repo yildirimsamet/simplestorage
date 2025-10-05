@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Union
 
 
 class ProductBase(BaseModel):
@@ -27,9 +27,18 @@ class ProductSizeDetail(BaseModel):
         from_attributes = True
 
 
-class ProductResponse(ProductBase):
+class ProductItem(ProductBase):
     id: int
-    sizes: List[ProductSizeDetail]
+    sizes: Optional[List[ProductSizeDetail]] = []
+
+    class Config:
+        from_attributes = True
+
+
+class ProductResponse(BaseModel):
+    success: bool
+    message: Optional[str] = None
+    data: Optional[Union[ProductItem, List[ProductItem]]] = None
 
     class Config:
         from_attributes = True

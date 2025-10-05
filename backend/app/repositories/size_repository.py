@@ -14,10 +14,7 @@ class SizeRepository:
 
     async def create_size(self, size_data: SizeCreate) -> Size:
         size = Size(**size_data.model_dump())
-
         self.db.add(size)
-
         await self.db.commit()
         await self.db.refresh(size)
-
         return size

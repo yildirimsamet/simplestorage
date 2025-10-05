@@ -41,6 +41,7 @@ poetry.lock
 *.swp
 *.swo
 *~
+CLAUDE.md
 
 # OS
 .DS_Store

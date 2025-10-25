@@ -1,15 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from app.core.database.postgresql import create_tables
 from app.core.security.create_admin_user import create_admin_user
 from app.utils.exception import http_exception_handler
 from contextlib import asynccontextmanager
 from app.controllers import auth_controller,user_controller,category_controller,product_controller,size_controller
+from pathlib import Path
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    upload_dir = Path("uploads/products")
+    upload_dir.mkdir(parents=True, exist_ok=True)
     await create_tables()
     await create_admin_user()
     yield
@@ -21,6 +25,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 

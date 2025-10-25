@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List, Union
+from fastapi import Form
 
 
 class ProductBase(BaseModel):
@@ -10,7 +11,14 @@ class ProductBase(BaseModel):
 
 
 class ProductCreate(ProductBase):
-    pass
+    @classmethod
+    def as_form(
+        cls,
+        name: str = Form(...),
+        category_id: int = Form(...),
+        description: Optional[str] = Form(None)
+    ):
+        return cls(name=name, category_id=category_id, description=description)
 
 
 class ProductUpdate(ProductBase):

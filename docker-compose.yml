@@ -13,6 +13,15 @@ services:
     networks:
       - simplestorage_network
 
+  redis:
+    image: redis:7-alpine
+    container_name: simplestorage_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - simplestorage_network
+    volumes:
+      - redis_data:/data
   backend:
     build: ./backend
     container_name: simplestorage_backend
@@ -22,6 +31,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgresql
+      - redis
     networks:
       - simplestorage_network
     volumes:
@@ -46,6 +56,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   simplestorage_network:

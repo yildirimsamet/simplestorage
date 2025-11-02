@@ -50,3 +50,14 @@ class ProductResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ProductSizeAdd(BaseModel):
+    size_id: int
+    price: float
+    stock: int
+
+
+class ProductSizeUpdate(BaseModel):
+    price: Optional[float] = None
+    stock: Optional[int] = None

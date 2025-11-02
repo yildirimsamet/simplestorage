@@ -4,6 +4,7 @@ from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from app.core.database.postgresql import create_tables
 from app.core.security.create_admin_user import create_admin_user
+from app.core.seed.seed_data import seed_all_data
 from app.utils.exception import http_exception_handler
 from contextlib import asynccontextmanager
 from app.controllers import auth_controller,user_controller,category_controller,product_controller,size_controller
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
     upload_dir.mkdir(parents=True, exist_ok=True)
     await create_tables()
     await create_admin_user()
+    await seed_all_data()
     yield
 
 

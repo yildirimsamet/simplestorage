@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 
 export const showAlert = {
-  success: (message: string = 'Operation completed successfully') => {
+  success: (message: string) => {
     return Swal.fire({
       icon: 'success',
       title: 'Success!',
@@ -10,7 +10,7 @@ export const showAlert = {
     });
   },
 
-  error: (message: string = 'An error occurred') => {
+  error: (message: string) => {
     return Swal.fire({
       icon: 'error',
       title: 'Error!',
@@ -19,7 +19,7 @@ export const showAlert = {
     });
   },
 
-  confirm: (message: string = 'Are you sure?') => {
+  confirm: (message: string) => {
     return Swal.fire({
       icon: 'warning',
       title: 'Confirmation',

@@ -76,7 +76,7 @@ htmlcov/
 .cache/
 
 # Alembic
-migrations/versions/__pycache__/
+/migrations
 
 # Docker
 .dockerignore

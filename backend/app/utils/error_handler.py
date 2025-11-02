@@ -25,24 +25,22 @@ def get_db_error_message(exception, model_name: str = "This record") -> str:
 
     match exception_type:
         case "ForeignKeyViolationError":
-            return "Related record does not exist or is being referenced by other records"
+            return "Cannot delete, record is being used by other data"
 
         case "UniqueViolationError":
-            return f"A {model_name.lower()} with this value already exists"
+            return f"{model_name} already exists with this value"
 
         case "IntegrityError":
             if hasattr(exception, 'orig') and hasattr(exception.orig, 'pgcode'):
                 pgcode = exception.orig.pgcode
-                match pgcode:
-                    case "23503":
-                        return "Foreign key constraint violation. The record may not exist or is being referenced"
-                    case "23505":
-                        return f"Duplicate entry. A {model_name.lower()} with this value already exists"
-                    case "23502":
-                        return "Required field is missing or null"
-                    case _:
-                        return "Database integrity constraint violation"
-            return "Database integrity constraint violation"
+                if pgcode == "23503":
+                    return "Cannot delete or update, record is linked to other data"
+                elif pgcode == "23505":
+                    return f"{model_name} already exists"
+                elif pgcode == "23502":
+                    return "Required field cannot be empty"
+                return "Database constraint violation"
+            return "Database constraint violation"
 
         case "ValueError":
             return f"{model_name} not found"
@@ -52,4 +50,4 @@ def get_db_error_message(exception, model_name: str = "This record") -> str:
 
         case _:
             error_msg = str(exception)
-            return f"An error occurred: {error_msg}" if error_msg else "Unknown error occurred"
+            return error_msg if error_msg else "Database error"

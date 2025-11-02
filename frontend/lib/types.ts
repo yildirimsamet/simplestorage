@@ -22,6 +22,12 @@ export interface ProductSize {
   stock: number;
 }
 
+export interface ProductSizeAdd {
+  size_id: number;
+  price: number;
+  stock: number;
+}
+
 export interface Product {
   id: number;
   name: string;

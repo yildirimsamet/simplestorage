@@ -1,169 +1,166 @@
+import axios from "axios";
 import { config } from "./config";
 import type {
   ApiResponse,
   Category,
   Product,
+  ProductSizeAdd,
   Size,
   LoginRequest,
   TokenResponse,
 } from "./types";
 
-const getToken = () => {
-  if (typeof window !== "undefined") {
-    // TODO: change to cookie later
-    // TODO: use axios, set cookie from server and use axios with_credentials
-    return localStorage.getItem("token");
-  }
-  return null;
-};
-
-const getHeaders = (includeAuth = true) => {
-  const headers: HeadersInit = {
+const axiosInstance = axios.create({
+  baseURL: config.apiUrl,
+  withCredentials: true,
+  headers: {
     "Content-Type": "application/json",
-  };
+  },
+});
 
-  if (includeAuth) {
-    const token = getToken();
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      window.location.href = "/login";
     }
+    return Promise.reject(error);
   }
-
-  return headers;
-};
+);
 
 export const api = {
   auth: {
     login: async (credentials: LoginRequest): Promise<TokenResponse> => {
-      const response = await fetch(`${config.apiUrl}/auth/login`, {
-        method: "POST",
-        headers: getHeaders(false),
-        body: JSON.stringify(credentials),
+      const response = await axiosInstance.post("/auth/login", credentials, {
+        headers: { "Content-Type": "application/json" },
+        transformRequest: [(data) => JSON.stringify(data)],
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
+      console.log('res::', response.data);
 
-      return response.json();
+      return response.data;
+    },
+
+    logout: async (): Promise<{ success: boolean; message: string }> => {
+      const response = await axiosInstance.post("/auth/logout");
+
+      console.log('res:', response.data);
+
+      return response.data;
     },
   },
 
   categories: {
     getAll: async (): Promise<ApiResponse<Category[]>> => {
-      const response = await fetch(`${config.apiUrl}/categories`, {
-        headers: getHeaders(false),
-      });
-
-      if (!response.ok) {
-        throw new Error("Categories not found");
-      }
-
-      return response.json();
+      const response = await axiosInstance.get("/categories");
+      return response.data;
     },
 
-    create: async (data: Omit<Category, 'id'>): Promise<ApiResponse<Category>> => {
-      const response = await fetch(`${config.apiUrl}/categories`, {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Category creation failed");
-      }
-
-      return response.json();
+    create: async (data: Omit<Category, "id">): Promise<ApiResponse<Category>> => {
+      const response = await axiosInstance.post("/categories", data);
+    
+      return response.data;
     },
 
     update: async (
       id: number,
-      data: Omit<Category, 'id'>
+      data: Omit<Category, "id">
     ): Promise<ApiResponse<Category>> => {
-      const response = await fetch(`${config.apiUrl}/categories/${id}`, {
-        method: "PUT",
-        headers: getHeaders(),
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Category update failed");
-      }
-
-      return response.json();
+      const response = await axiosInstance.put(`/categories/${id}`, data);
+  
+      return response.data;
     },
 
     delete: async (id: number): Promise<ApiResponse<Category>> => {
-      const response = await fetch(`${config.apiUrl}/categories/${id}`, {
-        method: "DELETE",
-        headers: getHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error("Category deletion failed");
-      }
-
-      return response.json();
+      const response = await axiosInstance.delete(`/categories/${id}`);
+      return response.data;
     },
   },
 
   products: {
     getAll: async (): Promise<ApiResponse<Product[]>> => {
-      const response = await fetch(`${config.apiUrl}/products`, {
-        headers: getHeaders(false),
+      const response = await axiosInstance.get("/products");
+      return response.data;
+    },
+
+    search: async (searchQuery: string): Promise<ApiResponse<Product[]>> => {
+      const response = await axiosInstance.get("/products/search", {
+        params: { search_query: searchQuery },
       });
 
-      if (!response.ok) {
-        throw new Error("Products not found");
-      }
+      console.log('data',response.data);
 
-      return response.json();
+      return response.data;
     },
 
     create: async (data: FormData): Promise<ApiResponse<Product>> => {
-      const token = getToken();
-      const headers: HeadersInit = {};
-
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${config.apiUrl}/products`, {
-        method: "POST",
-        headers,
-        body: data,
+      const response = await axiosInstance.post("/products", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+      return response.data;
+    },
 
-      return response.json();
+    addSize: async (
+      productId: number,
+      data: ProductSizeAdd
+    ): Promise<ApiResponse<Product>> => {
+      const response = await axiosInstance.post(
+        `/products/${productId}/sizes`, data );
+    
+      return response.data;
+    },
+
+    deleteSize: async (
+      productId: number,
+      sizeId: number
+    ): Promise<ApiResponse<Product>> => {
+      const response = await axiosInstance.delete(
+        `/products/${productId}/sizes/${sizeId}`);
+
+    
+      return response.data;
+    },
+
+    updateSize: async (
+      productId: number,
+      sizeId: number,
+      data: { price?: number; stock?: number }
+    ): Promise<ApiResponse<Product>> => {
+      const response = await axiosInstance.put(
+        `/products/${productId}/sizes/${sizeId}`, data
+      );
+
+      return response.data;
     },
   },
 
   sizes: {
     getAll: async (): Promise<ApiResponse<Size[]>> => {
-      const response = await fetch(`${config.apiUrl}/sizes`, {
-        headers: getHeaders(false),
-      });
-
-      if (!response.ok) {
-        throw new Error("Sizes not found");
-      }
-
-      return response.json();
+      const response = await axiosInstance.get("/sizes");
+  
+      return response.data;
     },
 
-    create: async (data: Omit<Size, 'id'>): Promise<ApiResponse<Size>> => {
-      const response = await fetch(`${config.apiUrl}/sizes`, {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify(data),
-      });
+    create: async (data: Omit<Size, "id">): Promise<ApiResponse<Size>> => {
+      const response = await axiosInstance.post("/sizes", data);
+      return response.data;
+    },
 
-      if (!response.ok) {
-        throw new Error("Size creation failed");
-      }
+    update: async (
+      id: number,
+      data: Partial<Omit<Size, "id">>
+    ): Promise<ApiResponse<Size>> => {
+      const response = await axiosInstance.put(`/sizes/${id}`, data);
+      return response.data;
+    },
 
-      return response.json();
+    delete: async (id: number): Promise<ApiResponse<Size>> => {
+      const response = await axiosInstance.delete(`/sizes/${id}`);
+      return response.data;
     },
   },
 };

@@ -20,9 +20,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await api.auth.login({ username, password });
-  
-      localStorage.setItem('token', response.access_token);
+      await api.auth.login({ username, password });
       router.push('/dashboard');
     } catch (error) {
       setError('Invalid credentials. Please try again.');
